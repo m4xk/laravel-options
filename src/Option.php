@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Option extends Model
 {
+
+    const SCOPE_DEFAULT = 'default';
+
     /**
      * Indicates if the model should be timestamped.
      *
@@ -21,29 +24,32 @@ class Option extends Model
     protected $fillable = [
         'key',
         'value',
+        'scope'
     ];
 
     /**
      * Determine if the given option value exists.
      *
-     * @param  string  $key
+     * @param string $key
+     * @param string $scope
      * @return bool
      */
-    public function exists($key)
+    public function exists($key, $scope = self::SCOPE_DEFAULT)
     {
-        return self::where('key', $key)->exists();
+        return self::where('key', $key)->where('scope', $scope)->exists();
     }
 
     /**
      * Get the specified option value.
      *
-     * @param  string  $key
-     * @param  mixed   $default
+     * @param string $key
+     * @param string $scope
+     * @param mixed $default
      * @return mixed
      */
-    public function get($key, $default = null)
+    public function get($key, $default = null, $scope = self::SCOPE_DEFAULT)
     {
-        if ($option = self::where('key', $key)->first()) {
+        if ($option = self::where('key', $key)->where('scope', $scope)->first()) {
             return $option->value;
         }
 
@@ -53,29 +59,30 @@ class Option extends Model
     /**
      * Set a given option value.
      *
-     * @param  array|string  $key
-     * @param  mixed   $value
+     * @param array|string $key
+     * @param mixed $value
+     * @param string $scope
      * @return void
      */
-    public function set($key, $value = null)
+    public function set($key, $value = null, $scope = self::SCOPE_DEFAULT)
     {
         $keys = is_array($key) ? $key : [$key => $value];
 
         foreach ($keys as $key => $value) {
-            self::updateOrCreate(['key' => $key], ['value' => $value]);
+            self::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value]);
         }
-
         // @todo: return the option
     }
 
     /**
      * Remove/delete the specified option value.
      *
-     * @param  string  $key
+     * @param string $key
+     * @param string $scope
      * @return bool
      */
-    public function remove($key)
+    public function remove($key, $scope = self::SCOPE_DEFAULT)
     {
-        return (bool) self::where('key', $key)->delete();
+        return (bool)self::where('key', $key)->where('scope', $scope)->delete();
     }
 }
