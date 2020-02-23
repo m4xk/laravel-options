@@ -77,7 +77,7 @@ class Option extends Model
         $keys = is_array($key) ? $key : [$key => $value];
 
         foreach ($keys as $key => $value) {
-            self::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value]);
+            self::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value, 'scope' => $scope]);
         }
         // @todo: return the option
     }
