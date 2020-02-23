@@ -76,7 +76,7 @@ class Option extends Model
     {
         if (is_array($key) && func_num_args() == 2) {
             foreach ($key as $keyName => $keyVal) {
-                self::updateOrCreate(['key' => $key, 'scope' => $scope = $value], ['value' => $keyVal]);
+                self::updateOrCreate(['key' => $key, 'scope' => $scope = $keyVal], ['value' => $keyVal]);
             }
         } else {
             self::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value]);
