@@ -52,13 +52,13 @@ class Option extends Model
         if ($key === '*') {
             return self::where('scope', $scope)->get()->mapWithKeys(
                 function ($item) {
-                    return [$item['key'] => $item['value']];
+                    return [$item['key'] => unserialize($item['value'])];
                 }
             )->toArray();
         }
 
         if ($option = self::where('key', $key)->where('scope', $scope)->first()) {
-            return $option->value;
+            return unserialize($option->value);
         }
 
         return $default;
@@ -76,10 +76,13 @@ class Option extends Model
     {
         if (is_array($key) && func_num_args() == 2) {
             foreach ($key as $keyName => $keyVal) {
-                Option::updateOrCreate(['key' => $keyName, 'scope' => $scope = $value], ['value' => $keyVal]);
+                Option::updateOrCreate(
+                    ['key' => $keyName, 'scope' => $scope = $value],
+                    ['value' => serialize($keyVal)]
+                );
             }
         } else {
-            Option::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value]);
+            Option::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => serialize($value)]);
         }
     }
 
