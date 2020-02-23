@@ -74,8 +74,8 @@ class Option extends Model
      */
     public function set($key, $value = null, $scope = self::SCOPE_DEFAULT)
     {
-        if ($keys = is_array($key) && func_num_args() == 2) {
-            foreach ($keys as $keyName => $keyVal) {
+        if (is_array($key) && func_num_args() == 2) {
+            foreach ($key as $keyName => $keyVal) {
                 self::updateOrCreate(['key' => $key, 'scope' => $scope = $value], ['value' => $keyVal]);
             }
         } else {
