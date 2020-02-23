@@ -74,12 +74,13 @@ class Option extends Model
      */
     public function set($key, $value = null, $scope = self::SCOPE_DEFAULT)
     {
-        $keys = is_array($key) ? $key : [$key => $value];
-
-        foreach ($keys as $key => $value) {
-            self::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value, 'scope' => $scope]);
+        if ($keys = is_array($key) && func_num_args() == 2) {
+            foreach ($keys as $keyName => $keyVal) {
+                self::updateOrCreate(['key' => $key, 'scope' => $scope = $value], ['value' => $keyVal]);
+            }
+        } else {
+            self::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => $value]);
         }
-        // @todo: return the option
     }
 
     /**
@@ -89,8 +90,10 @@ class Option extends Model
      * @param string $scope
      * @return bool
      */
-    public function remove($key, $scope = self::SCOPE_DEFAULT)
-    {
+    public function remove(
+        $key,
+        $scope = self::SCOPE_DEFAULT
+    ) {
         return (bool)self::where('key', $key)->where('scope', $scope)->delete();
     }
 }
