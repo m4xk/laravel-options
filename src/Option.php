@@ -49,6 +49,14 @@ class Option extends Model
      */
     public function get($key, $default = null, $scope = self::SCOPE_DEFAULT)
     {
+        if ($key === '*') {
+            return self::where('scope', $scope)->get()->mapWithKeys(
+                function ($item) {
+                    return [$item['key'] => $item['value']];
+                }
+            )->toArray();
+        }
+
         if ($option = self::where('key', $key)->where('scope', $scope)->first()) {
             return $option->value;
         }
