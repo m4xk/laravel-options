@@ -47,22 +47,23 @@ class Option extends Model
      * @param mixed $default
      * @return mixed
      */
-    public function get($key, $default = null, $scope = self::SCOPE_DEFAULT)
+    function get($key, $default = null, $scope = self::SCOPE_DEFAULT)
     {
         if ($key === '*') {
-            return self::where('scope', $scope)->get()->mapWithKeys(
+            return self::where('key', 'LIKE', "$scope.%")->get()->mapWithKeys(
                 function ($item) {
                     return [$item['key'] => unserialize($item['value'])];
                 }
             )->toArray();
         }
 
-        if ($option = self::where('key', $key)->where('scope', $scope)->first()) {
+        if ($option = Option::where('key', $this->buildKey($key, $scope)->first())) {
             return unserialize($option->value);
         }
 
         return $default;
     }
+
 
     /**
      * Set a given option value.
@@ -72,17 +73,17 @@ class Option extends Model
      * @param string $scope
      * @return void
      */
-    public function set($key, $value = null, $scope = self::SCOPE_DEFAULT)
+    function set($key, $value = null, $scope = self::SCOPE_DEFAULT)
     {
         if (is_array($key) && func_num_args() == 2) {
             foreach ($key as $keyName => $keyVal) {
                 Option::updateOrCreate(
-                    ['key' => $keyName, 'scope' => $scope = $value],
+                    ['key' => $this->buildKey($keyName, $scope = $value)],
                     ['value' => serialize($keyVal)]
                 );
             }
         } else {
-            Option::updateOrCreate(['key' => $key, 'scope' => $scope], ['value' => serialize($value)]);
+            Option::updateOrCreate(['key' => $this->buildKey($key, $scope)], ['value' => serialize($value)]);
         }
     }
 
@@ -97,6 +98,18 @@ class Option extends Model
         $key,
         $scope = self::SCOPE_DEFAULT
     ) {
-        return (bool)self::where('key', $key)->where('scope', $scope)->delete();
+        return (bool)self::where('key', $this->buildKey($key, $scope))->delete();
     }
+
+
+    /**
+     * @param $key
+     * @param string $scope
+     * @return string
+     */
+    protected function buildKey($key, $scope = self::SCOPE_DEFAULT)
+    {
+        return $scope . '.' . $key;
+    }
+
 }
