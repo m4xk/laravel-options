@@ -36,7 +36,7 @@ class Option extends Model
      */
     public function exists($key, $scope = self::SCOPE_DEFAULT)
     {
-        return self::where('key', $key)->where('scope', $scope)->exists();
+        return self::where('key', $this->buildKey($key, $scope))->exists();
     }
 
     /**
@@ -51,8 +51,8 @@ class Option extends Model
     {
         if ($key === '*') {
             return self::where('key', 'LIKE', "$scope.%")->get()->mapWithKeys(
-                function ($item) {
-                    return [$item['key'] => unserialize($item['value'])];
+                function ($item) use ($scope) {
+                    return [preg_replace("/^$scope./", '', $item['key']) => unserialize($item['value'])];
                 }
             )->toArray();
         }
