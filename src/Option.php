@@ -57,7 +57,7 @@ class Option extends Model
             )->toArray();
         }
 
-        if ($option = Option::where('key', $this->buildKey($key, $scope)->first())) {
+        if ($option = Option::where('key', $this->buildKey($key, $scope))->first()) {
             return unserialize($option->value);
         }
 
